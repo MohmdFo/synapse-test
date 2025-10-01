@@ -39,7 +39,20 @@ database:
     database: /data/homeserver.db
 
 ## Logging ##
-log_config: "/data/107.189.19.66.log.config"
+# Use console logging to avoid file permission issues
+log_config: |
+  version: 1
+  formatters:
+    precise:
+      format: '%(asctime)s - %(name)s - %(lineno)d - %(levelname)s - %(request)s - %(message)s'
+  handlers:
+    console:
+      class: logging.StreamHandler
+      formatter: precise
+  root:
+    level: INFO
+    handlers: [console]
+  disable_existing_loggers: false
 
 ## Media Store ##
 media_store_path: /data/media_store

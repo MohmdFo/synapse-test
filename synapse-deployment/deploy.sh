@@ -13,18 +13,26 @@ echo "📁 Creating data directories..."
 mkdir -p volumes/synapse
 mkdir -p synapse/templates
 
-# Set proper permissions
+# Set proper permissions (Synapse runs as UID 991)
 echo "🔐 Setting permissions..."
-chmod 755 volumes/synapse
+sudo chown -R 991:991 volumes/synapse
+sudo chmod -R 755 volumes/synapse
 chmod 755 synapse/templates
 
-# Generate signing key if it doesn't exist
-if [ ! -f "volumes/synapse/107.189.19.66.signing.key" ]; then
-    echo "🔑 Generating signing key..."
+# Generate initial configuration and signing key
+echo "🔑 Generating initial configuration..."
+if [ ! -f "volumes/synapse/homeserver.yaml" ]; then
+    echo "Creating initial homeserver configuration..."
     docker run --rm \
         -v $(pwd)/volumes/synapse:/data \
+        -e SYNAPSE_SERVER_NAME=107.189.19.66 \
+        -e SYNAPSE_REPORT_STATS=no \
         matrixdotorg/synapse:latest \
-        generate-keys -c /data/homeserver.yaml
+        generate
+    
+    # Copy our custom configuration
+    sudo cp synapse/homeserver.yaml volumes/synapse/homeserver.yaml
+    sudo chown 991:991 volumes/synapse/homeserver.yaml
 fi
 
 # Start services
