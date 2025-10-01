@@ -39,20 +39,8 @@ database:
     database: /data/homeserver.db
 
 ## Logging ##
-# Use console logging to avoid file permission issues
-log_config: |
-  version: 1
-  formatters:
-    precise:
-      format: '%(asctime)s - %(name)s - %(lineno)d - %(levelname)s - %(request)s - %(message)s'
-  handlers:
-    console:
-      class: logging.StreamHandler
-      formatter: precise
-  root:
-    level: INFO
-    handlers: [console]
-  disable_existing_loggers: false
+# Use external log config file to avoid inline YAML issues
+log_config: "/data/log.config"
 
 ## Media Store ##
 media_store_path: /data/media_store

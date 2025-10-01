@@ -31,6 +31,7 @@ fi
 # Copy our simplified config
 echo "📝 Applying custom configuration..."
 sudo cp synapse/homeserver.yaml volumes/synapse/homeserver.yaml
-sudo chown 991:991 volumes/synapse/homeserver.yaml
+sudo cp synapse/log.config volumes/synapse/log.config
+sudo chown 991:991 volumes/synapse/homeserver.yaml volumes/synapse/log.config
 
 echo "✅ Fix applied! Now run: ./deploy.sh"

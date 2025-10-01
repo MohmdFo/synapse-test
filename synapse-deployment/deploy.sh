@@ -30,9 +30,10 @@ if [ ! -f "volumes/synapse/homeserver.yaml" ]; then
         matrixdotorg/synapse:latest \
         generate
     
-    # Copy our custom configuration
+    # Copy our custom configuration and log config
     sudo cp synapse/homeserver.yaml volumes/synapse/homeserver.yaml
-    sudo chown 991:991 volumes/synapse/homeserver.yaml
+    sudo cp synapse/log.config volumes/synapse/log.config
+    sudo chown 991:991 volumes/synapse/homeserver.yaml volumes/synapse/log.config
 fi
 
 # Start services
