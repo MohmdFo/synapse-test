@@ -1,0 +1,90 @@
+# Configuration file for Synapse.
+# Adapted from backup for bare IP deployment on 107.189.19.66
+
+## Server ##
+server_name: "107.189.19.66"
+
+# When running as a daemon, the file to store the pid in
+pid_file: /data/homeserver.pid
+
+# The public-facing base URL that clients use to access this HS
+public_baseurl: http://107.189.19.66:8008/
+
+# List of ports that Synapse should listen on
+listeners:
+  # Unsecure HTTP listener: for when matrix traffic passes through a reverse proxy
+  # that unwraps TLS.
+  - port: 8008
+    tls: false
+    type: http
+    x_forwarded: true
+    bind_addresses: ['0.0.0.0']
+
+    resources:
+      - names: [client, federation]
+        compress: false
+
+  # TLS-enabled listener: for federation
+  - port: 8448
+    type: http
+    tls: false
+    bind_addresses: ['0.0.0.0']
+    resources:
+      - names: [federation]
+
+## Database ##
+database:
+  name: sqlite3
+  args:
+    database: /data/homeserver.db
+
+## Logging ##
+log_config: "/data/107.189.19.66.log.config"
+
+## Media Store ##
+media_store_path: /data/media_store
+
+## Registration ##
+enable_registration: true
+enable_registration_without_verification: true
+registration_requires_token: false
+
+# Disable email requirement that was causing issues
+require_email_for_registration: false
+enable_3pid_lookup: false
+
+## Signing Keys ##
+signing_key_path: "/data/107.189.19.66.signing.key"
+
+trusted_key_servers:
+  - server_name: "matrix.org"
+
+## Single-tenant mode ##
+suppress_key_server_warning: true
+
+## Security ##
+enable_metrics: false
+report_stats: false
+
+## Room settings ##
+default_room_version: "10"
+
+## User directory ##
+user_directory:
+    enabled: true
+    search_all_users: true
+
+## Push ##
+push:
+  include_content: true
+
+## TURN ##
+# turn_uris: []
+# turn_shared_secret: ""
+# turn_username: ""
+# turn_password: ""
+
+## Experimental features ##
+experimental_features:
+  # Enable faster room joins
+  faster_joins: true

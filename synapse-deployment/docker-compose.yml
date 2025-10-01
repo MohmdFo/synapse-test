@@ -2,19 +2,22 @@ services:
   synapse:
     image: matrixdotorg/synapse:latest
     container_name: synapse
+    hostname: synapse
     restart: unless-stopped
     environment:
       - SYNAPSE_CONFIG_PATH=/data/homeserver.yaml
     volumes:
-      - /opt/synapse/data:/data
+      - ./volumes/synapse:/data
+      - ./synapse/homeserver.yaml:/data/homeserver.yaml
+      - ./synapse/templates:/data/templates
     ports:
-      - "8008:8008"     # HTTP port - accessible via http://107.189.19.66:8008
-      - "8448:8448"     # HTTPS federation port
-    depends_on:
-      - db
-      - redis
+      - "8008:8008"     # HTTP port - direct access
+      - "8448:8448"     # Federation port
+    dns:
+      - 8.8.8.8
+      - 1.1.1.1
     networks:
-      - synapse-network
+      - synapse_network
     healthcheck:
       test: ["CMD-SHELL", "curl -fSs http://localhost:8008/health || exit 1"]
       start_period: "30s"
@@ -22,40 +25,6 @@ services:
       timeout: "10s"
       retries: 3
 
-  db:
-    image: postgres:15-alpine
-    container_name: synapse-db
-    restart: unless-stopped
-    environment:
-      - POSTGRES_USER=synapse_user
-      - POSTGRES_PASSWORD=SynapseSecure2024!
-      - POSTGRES_DB=synapse
-      - POSTGRES_INITDB_ARGS=--encoding=UTF-8 --lc-collate=C --lc-ctype=C
-    volumes:
-      - /opt/synapse/postgres:/var/lib/postgresql/data
-    networks:
-      - synapse-network
-    healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U synapse_user -d synapse"]
-      interval: 30s
-      timeout: 10s
-      retries: 3
-
-  redis:
-    image: redis:7-alpine
-    container_name: synapse-redis
-    restart: unless-stopped
-    command: redis-server --requirepass RedisSecure2024! --appendonly yes
-    volumes:
-      - /opt/synapse/redis:/data
-    networks:
-      - synapse-network
-    healthcheck:
-      test: ["CMD-SHELL", "redis-cli --no-auth-warning -a RedisSecure2024! ping | grep PONG"]
-      interval: 30s
-      timeout: 10s
-      retries: 3
-
 networks:
-  synapse-network:
+  synapse_network:
     driver: bridge
