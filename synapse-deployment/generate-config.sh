@@ -20,10 +20,14 @@ echo "🔑 Generating signing key..."
 mkdir -p "$CONFIG_DIR"
 SIGNING_KEY_FILE="$CONFIG_DIR/signing.key"
 
-# Generate ed25519 signing key if it doesn't exist
+# Generate Synapse-compatible signing key if it doesn't exist
 if [ ! -f "$SIGNING_KEY_FILE" ]; then
-    # Use openssl to generate a proper ed25519 key
-    openssl genpkey -algorithm ed25519 -out "$SIGNING_KEY_FILE"
+    # Generate a random signing key in the format Synapse expects
+    # Synapse uses its own format: "ed25519 <key_id> <base64_encoded_key>"
+    KEY_ID=$(openssl rand -hex 8)
+    # Generate 32 bytes of random data and base64 encode it
+    KEY_DATA=$(openssl rand 32 | base64 -w 0)
+    echo "ed25519 a_${KEY_ID} ${KEY_DATA}" > "$SIGNING_KEY_FILE"
     chmod 600 "$SIGNING_KEY_FILE"
 fi
 
@@ -69,11 +73,11 @@ redis:
 # Registration and user management
 enable_registration: true
 registration_shared_secret: "YourRegistrationSecret2024!"
-enable_registration_without_verification: false
+enable_registration_without_verification: true
 
-# Require email for registration (disable for initial setup)
-registrations_require_3pid:
-  - email
+# Require email for registration (disabled for initial setup)
+# registrations_require_3pid:
+#   - email
 
 # Allow guest access
 allow_guest_access: false
